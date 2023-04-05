@@ -9,7 +9,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,11 +32,11 @@ public class MainController {
 
 
     // Publish messages using the GetMapping
-    @GetMapping("/publish/{id}")
-    public String publishMessage(@PathVariable("id")
+    @GetMapping(value = "/publish/{id}" ,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Message> publishMessage(@PathVariable("id")
                                  final String id)
     {
-logger.info("id:"+id);
+       logger.info("id:"+id);
         // Sending the message
 
         Message message = new Message();
@@ -51,6 +53,6 @@ logger.info("id:"+id);
         }
         kafkaTemplate.send(TOPIC, json);
 
-        return "Published Successfully";
+        return new ResponseEntity<>(message , HttpStatus.valueOf(200));
     }
 }
