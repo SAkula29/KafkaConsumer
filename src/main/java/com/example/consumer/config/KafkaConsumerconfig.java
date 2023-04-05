@@ -1,5 +1,6 @@
 package com.example.consumer.config;
 
+import com.example.consumer.models.Message;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,21 +9,16 @@ import org.springframework.kafka.core.ConsumerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+
 @EnableKafka
 @Configuration
 public class KafkaConsumerconfig {
         @Bean
-        public ConsumerFactory<String, String> consumerFactory()
+        public ConsumerFactory<String, Message> consumerFactory()
         {
 
             // Creating a Map of string-object pairs
@@ -38,17 +34,21 @@ public class KafkaConsumerconfig {
                     StringDeserializer.class);
             config.put(
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                    JsonDeserializer.class);
 
-                    StringDeserializer.class);
-
-            return new DefaultKafkaConsumerFactory<>(config);
+            // return message in JSON formate
+            return new DefaultKafkaConsumerFactory<>(
+                    config, new StringDeserializer(),
+                    new JsonDeserializer<>(Message.class));
         }
 
         // Creating a Listener
-        public ConcurrentKafkaListenerContainerFactory concurrentKafkaListenerContainerFactory()
+        public ConcurrentKafkaListenerContainerFactory<String,
+                Message> concurrentKafkaListenerContainerFactory()
         {
-            ConcurrentKafkaListenerContainerFactory<
-                    String, String> factory
+            ConcurrentKafkaListenerContainerFactory<String,
+                    Message>
+                    factory
                     = new ConcurrentKafkaListenerContainerFactory<>();
             factory.setConsumerFactory(consumerFactory());
             return factory;
