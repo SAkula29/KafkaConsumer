@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MainController {
-    Logger logger= LoggerFactory.getLogger(MainController.class)
+    Logger logger= LoggerFactory.getLogger(MainController.class);
     // Autowiring Kafka Template
     @Autowired
     KafkaTemplate<String, String> kafkaTemplate;
