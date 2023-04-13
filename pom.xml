@@ -15,8 +15,8 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
-		<maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
-		<os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
+		<deps.protobuf.version>3.11.4</deps.protobuf.version>
+		<deps.codehaus.version>3.2.0</deps.codehaus.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protobuf-java.version>3.17.3</protobuf-java.version>
 		<protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
@@ -67,41 +67,33 @@
 	</dependencies>
 
 	<build>
-		<extensions>
-			<extension>
-				<groupId>kr.motd.maven</groupId>
-				<artifactId>os-maven-plugin</artifactId>
-				<version>${os-maven-plugin.version}</version>
-			</extension>
-		</extensions>
 		<plugins>
-
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
-				<configuration>
-					<source>11</source>
-					<target>11</target>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
 			<plugin>
-				<groupId>org.xolstice.maven.plugins</groupId>
-				<artifactId>protobuf-maven-plugin</artifactId>
-				<version>${protobuf-maven-plugin.version}</version>
-				<extensions>true</extensions>
+				<groupId>com.github.os72</groupId>
+				<artifactId>protoc-jar-maven-plugin</artifactId>
+				<version>${deps.protobuf.version}</version>
 				<executions>
 					<execution>
+						<phase>generate-sources</phase>
 						<goals>
-							<goal>compile</goal>
-							<goal>test-compile</goal>
+							<goal>run</goal>
 						</goals>
 						<configuration>
-							<protocArtifact>com.google.protobuf:protoc:3.17.3:exe:${os.detected.classifier}
-							</protocArtifact>
+							<addProtoSources>all</addProtoSources>
+							<inputDirectories>
+								<directory>${basedir}/src/main/resources/protobuf</directory>
+							</inputDirectories>
+							<outputTargets>
+								<outputTarget>
+									<type>java</type>
+									<outputDirectory>${basedir}/target/generated-sources/protobuf</outputDirectory>
+								</outputTarget>
+							</outputTargets>
 						</configuration>
 					</execution>
 				</executions>
@@ -109,41 +101,23 @@
 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>versions-maven-plugin</artifactId>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-scm-plugin</artifactId>
-				<version>${maven-scm-plugin.version}</version>
-				<configuration>
-					<tag>${project.artifactId}-${project.version}</tag>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>${maven-enforcer-plugin.version}</version>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>${deps.codehaus.version}</version>
 				<executions>
 					<execution>
-						<id>enforce-maven</id>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
 						<goals>
-							<goal>enforce</goal>
+							<goal>add-source</goal>
 						</goals>
 						<configuration>
-							<rules>
-								<requireMavenVersion>
-									<version>3.3</version>
-								</requireMavenVersion>
-								<requireJavaVersion>
-									<version>11</version>
-								</requireJavaVersion>
-							</rules>
+							<sources>
+								<source>${basedir}/target/generated-sources/protobuf</source>
+							</sources>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>
